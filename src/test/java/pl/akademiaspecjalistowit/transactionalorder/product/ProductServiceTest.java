@@ -45,7 +45,6 @@ class ProductServiceTest {
         assertThat(productEntity).isEqualTo(referenceEntity);
     }
 
-
     @Test
     void should_get_product() {
         //given
@@ -79,5 +78,4 @@ class ProductServiceTest {
         product1.setQuantity(0);
         return product1;
     }
-
 }
