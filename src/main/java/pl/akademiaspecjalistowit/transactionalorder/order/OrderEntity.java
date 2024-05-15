@@ -15,13 +15,15 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String productName;
+    @OneToOne
+    @JoinColumn (name = "product_id", referencedColumnName = "id")
+    private ProductEntity productEntity;
 
     private Integer quantity;
 
-    public OrderEntity(String productName, Integer quantity) {
+    public OrderEntity(ProductEntity productEntity, Integer quantity) {
         validate(quantity);
-        this.productName = productName;
+        this.productEntity = productEntity;
         this.quantity = quantity;
     }
 
