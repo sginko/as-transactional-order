@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import pl.akademiaspecjalistowit.transactionalorder.order.OrderService;
 
 @SpringBootTest
 class ProductServiceTest {
@@ -21,6 +22,8 @@ class ProductServiceTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private OrderService orderService;
 
     @AfterEach
     void tearDown() {
@@ -63,9 +66,10 @@ class ProductServiceTest {
         // given
         ProductEntity productEntity = prepareProductEntity();
         productRepository.save(productEntity);
+//        productRepository.removeBoughtOutProducts("Test Product 1");
 
         // when
-        productRepository.removeBoughtOutProducts("Test Product 1");
+//        orderService.placeAnOrder(orderDto);
 
         //then
         Optional<ProductEntity> result = productRepository.getProductEntityByName("Test Product 1");

@@ -15,7 +15,7 @@ class ProductEntityTest {
     public void should_throw_exception_if_product_quantity_is_insufficient() {
         //given
         ProductEntity pizza = new ProductEntity("pizza", 10);
-        OrderEntity pizzaOrder = new OrderEntity("pizza", 12);
+        OrderEntity pizzaOrder = new OrderEntity(pizza, 12);
 
         //when
         Executable e = () -> pizza.applyOrder(pizzaOrder);
@@ -29,7 +29,7 @@ class ProductEntityTest {
     public void should_not_throw_exception_if_product_quantity_is_sufficient() {
         //given
         ProductEntity pizza = new ProductEntity("pizza", 12);
-        OrderEntity pizzaOrder = new OrderEntity("pizza", 12);
+        OrderEntity pizzaOrder = new OrderEntity(pizza, 12);
 
         //when
         Executable e = () -> pizza.applyOrder(pizzaOrder);
@@ -43,7 +43,7 @@ class ProductEntityTest {
         //given
         int initialPizzaQuantity = 12;
         ProductEntity pizza = new ProductEntity("pizza", initialPizzaQuantity);
-        OrderEntity pizzaOrder = new OrderEntity("pizza", 10);
+        OrderEntity pizzaOrder = new OrderEntity(pizza, 10);
 
         //when
         pizza.applyOrder(pizzaOrder);

@@ -1,6 +1,7 @@
 package pl.akademiaspecjalistowit.transactionalorder.order;
 
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,29 +20,62 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void placeAnOrder(OrderDto orderDto) {
-        OrderEntity orderEntity = new OrderEntity(
-            orderDto.getProductName(),
-            orderDto.getQuantity());
-        Optional<ProductEntity> productByName = productReadService.getProductByName(orderEntity.getProductName());
+        Optional<ProductEntity> productByName = productReadService.getProductByName(orderDto.getProductName());
 
-        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity,productByName);
+//        ProductEntity productEntity = productByName
+//                .orElseThrow(()-> new ProductException("Don't have product"));
+//
+//        OrderEntity orderEntity = new OrderEntity(productEntity, orderDto.getQuantity());
+
+        OrderEntity orderEntity = productByName
+                .map(productEntity-> new OrderEntity(productEntity, orderDto.getQuantity()))
+                .orElseThrow(()-> new OrderServiceException("zawiera pozycje niedostępną w magazynie"));
+
+        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity, productByName);
         orderRepository.save(orderEntityAfterValidations);
         orderPlacedEventListener.notifyOrderPlaced(orderEntityAfterValidations);
     }
 
+//    public void placeAnOrder(OrderDto orderDto) {
+//        OrderEntity orderEntity = new OrderEntity(
+//                orderDto.getProductName(),
+//                orderDto.getQuantity());
+//        Optional<ProductEntity> productByName = productReadService.getProductByName(orderEntity.getProductName());
+//
+//        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity,productByName);
+//        orderRepository.save(orderEntityAfterValidations);
+//        orderPlacedEventListener.notifyOrderPlaced(orderEntityAfterValidations);
+//    }
+
     private OrderEntity updateWarehouseState(OrderEntity orderEntity,
                                              Optional<ProductEntity> productByName) {
+
+
         return productByName.map(product -> {
             try {
                 product.applyOrder(orderEntity);
             } catch (ProductException e) {
                 throw new OrderServiceException(
-                    "Zamównie nie może być zrealizowane ponieważ ilosć " +
-                        "pozycji w magazynie jest niewystarczająca");
+                        "Zamównie nie może być zrealizowane ponieważ ilosć " +
+                                "pozycji w magazynie jest niewystarczająca");
             }
             return orderEntity;
         }).orElseThrow(() -> new OrderServiceException("Zamównie nie moze być realizowane, ponieważ " +
-            "zawiera pozycje niedostępną w magazynie"));
+                "zawiera pozycje niedostępną w magazynie"));
     }
 
+//    private OrderEntity updateWarehouseState(OrderEntity orderEntity,
+//                                             Optional<ProductEntity> productByName) {
+//        return productByName.map(product -> {
+//            try {
+//                product.applyOrder(orderEntity);
+//            } catch (ProductException e) {
+//                throw new OrderServiceException(
+//                        "Zamównie nie może być zrealizowane ponieważ ilosć " +
+//                                "pozycji w magazynie jest niewystarczająca");
+//            }
+//            return orderEntity;
+//        }).orElseThrow(() -> new OrderServiceException("Zamównie nie moze być realizowane, ponieważ " +
+//                "zawiera pozycje niedostępną w magazynie"));
+//    }
 }
