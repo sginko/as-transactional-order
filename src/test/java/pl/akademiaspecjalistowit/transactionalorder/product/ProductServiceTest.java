@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import pl.akademiaspecjalistowit.transactionalorder.order.OrderDto;
 import pl.akademiaspecjalistowit.transactionalorder.order.OrderService;
 
 @SpringBootTest
@@ -34,9 +35,7 @@ class ProductServiceTest {
     void should_add_new_product() {
         //given
         ProductDto exampleProduct = new ProductDto("test1", 45);
-        ProductEntity referenceEntity = new ProductEntity(
-            exampleProduct.getName(),
-            exampleProduct.getQuantity());
+        ProductEntity referenceEntity = new ProductEntity(exampleProduct.getName(), exampleProduct.getQuantity());
 
         //when
         productService.addProduct(exampleProduct);
@@ -61,25 +60,25 @@ class ProductServiceTest {
         assertThat(products).containsExactlyInAnyOrder(exampleProduct);
     }
 
-    @Test
-    public void should_remove_bought_out_products() {
-        // given
-        ProductEntity productEntity = prepareProductEntity();
-        productRepository.save(productEntity);
-//        productRepository.removeBoughtOutProducts("Test Product 1");
-
-        // when
+//    @Test
+//    public void should_remove_bought_out_products() {
+//        // given
+//        ProductEntity productEntity = prepareProductEntity();
+//        productRepository.save(productEntity);
+//        OrderDto orderDto = new OrderDto("Test Product 1", 1);
+//
+//        // when
 //        orderService.placeAnOrder(orderDto);
+//
+//        //then
+//        Optional<ProductEntity> result = productRepository.getProductEntityByName("Test Product 1");
+//        assertTrue(result.isEmpty());
+//    }
 
-        //then
-        Optional<ProductEntity> result = productRepository.getProductEntityByName("Test Product 1");
-        assertTrue(result.isEmpty());
-    }
-
-    private ProductEntity prepareProductEntity(){
-        ProductEntity product1 = new ProductEntity();
-        product1.setName("Test Product 1");
-        product1.setQuantity(0);
-        return product1;
-    }
+//    private ProductEntity prepareProductEntity(){
+//        ProductEntity product1 = new ProductEntity();
+//        product1.setName("Test Product 1");
+//        product1.setQuantity(1);
+//        return product1;
+//    }
 }

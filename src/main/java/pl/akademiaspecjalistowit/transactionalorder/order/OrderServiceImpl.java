@@ -1,7 +1,5 @@
 package pl.akademiaspecjalistowit.transactionalorder.order;
 
-import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,73 +7,58 @@ import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductException;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductReadService;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductReadService productReadService;
-    private final OrderPlacedEventListener orderPlacedEventListener;
+    private final OrderEventListener orderEventListener;
 
     @Override
     @Transactional
     public void placeAnOrder(OrderDto orderDto) {
-        Optional<ProductEntity> productByName = productReadService.getProductByName(orderDto.getProductName());
+        List<ProductEntity> productEntities = orderDto.getProducts().stream()
+                .map(product -> productReadService.getProductByName(product))
+                .filter((productEntity -> productEntity.isPresent()))
+                .map(productEntity -> productEntity.get())
+                .toList();
 
-//        ProductEntity productEntity = productByName
-//                .orElseThrow(()-> new ProductException("Don't have product"));
-//
-//        OrderEntity orderEntity = new OrderEntity(productEntity, orderDto.getQuantity());
-
-        OrderEntity orderEntity = productByName
-                .map(productEntity-> new OrderEntity(productEntity, orderDto.getQuantity()))
-                .orElseThrow(()-> new OrderServiceException("zawiera pozycje niedostępną w magazynie"));
-
-        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity, productByName);
-        orderRepository.save(orderEntityAfterValidations);
-        orderPlacedEventListener.notifyOrderPlaced(orderEntityAfterValidations);
+        rejectPartialOrders(orderDto, productEntities);
+        OrderEntity orderEntity = makeAnOrdersWithWarehouseStateUpdate(orderDto, productEntities);
+        orderRepository.save(orderEntity);
     }
 
-//    public void placeAnOrder(OrderDto orderDto) {
-//        OrderEntity orderEntity = new OrderEntity(
-//                orderDto.getProductName(),
-//                orderDto.getQuantity());
-//        Optional<ProductEntity> productByName = productReadService.getProductByName(orderEntity.getProductName());
-//
-//        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity,productByName);
-//        orderRepository.save(orderEntityAfterValidations);
-//        orderPlacedEventListener.notifyOrderPlaced(orderEntityAfterValidations);
-//    }
-
-    private OrderEntity updateWarehouseState(OrderEntity orderEntity,
-                                             Optional<ProductEntity> productByName) {
-
-
-        return productByName.map(product -> {
-            try {
-                product.applyOrder(orderEntity);
-            } catch (ProductException e) {
-                throw new OrderServiceException(
-                        "Zamównie nie może być zrealizowane ponieważ ilosć " +
-                                "pozycji w magazynie jest niewystarczająca");
-            }
-            return orderEntity;
-        }).orElseThrow(() -> new OrderServiceException("Zamównie nie moze być realizowane, ponieważ " +
-                "zawiera pozycje niedostępną w magazynie"));
+    @Override
+    @Transactional
+    public void deleteOrderById(Long id) {
+        findOrderForWarehouseStateUpdate(id);
+        orderRepository.deleteById(id);
     }
 
-//    private OrderEntity updateWarehouseState(OrderEntity orderEntity,
-//                                             Optional<ProductEntity> productByName) {
-//        return productByName.map(product -> {
-//            try {
-//                product.applyOrder(orderEntity);
-//            } catch (ProductException e) {
-//                throw new OrderServiceException(
-//                        "Zamównie nie może być zrealizowane ponieważ ilosć " +
-//                                "pozycji w magazynie jest niewystarczająca");
-//            }
-//            return orderEntity;
-//        }).orElseThrow(() -> new OrderServiceException("Zamównie nie moze być realizowane, ponieważ " +
-//                "zawiera pozycje niedostępną w magazynie"));
-//    }
+    private void findOrderForWarehouseStateUpdate(Long id) {
+        OrderEntity orderEntity = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderServiceException("Order not found"));
+        for (ProductEntity productEntity : orderEntity.getProductEntityList()) {
+            orderEventListener.notifyOrderDeleted(productEntity, orderEntity);
+        }
+    }
+
+    private static void rejectPartialOrders(OrderDto orderDto, List<ProductEntity> productEntities) {
+        if (orderDto.getProducts().size() > productEntities.size()) {
+            throw new OrderServiceException("Order is rejected, due to missing of some items in the warehouse");
+        }
+    }
+
+    private OrderEntity makeAnOrdersWithWarehouseStateUpdate(OrderDto orderDto, List<ProductEntity> productEntities) {
+        try {
+            return new OrderEntity(productEntities, orderDto.getQuantity());
+        } catch (ProductException e) {
+            throw new OrderServiceException(
+                    "Zamównie nie może być zrealizowane ponieważ ilosć " +
+                            "pozycji w magazynie jest niewystarczająca");
+        }
+    }
 }
