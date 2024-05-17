@@ -36,10 +36,9 @@ class ProductEntityTest {
         ProductEntity pizza = new ProductEntity("pizza", 12);
         List<ProductEntity> listOfProduct = new ArrayList<>();
         listOfProduct.add(pizza);
-        OrderEntity pizzaOrder = new OrderEntity(listOfProduct, 12);
 
         //when
-        Executable e = () -> pizza.applyOrder(pizzaOrder);
+        Executable e = () -> new OrderEntity(listOfProduct, 12);
 
         //then
         assertDoesNotThrow(e);
