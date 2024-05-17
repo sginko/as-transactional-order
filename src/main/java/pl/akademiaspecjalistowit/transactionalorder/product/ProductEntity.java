@@ -26,7 +26,7 @@ public class ProductEntity {
 
     private Integer quantity;
 
-//    @ManyToMany(mappedBy = "productEntityList")
+    @ManyToMany(mappedBy = "productEntityList")
     private List<OrderEntity> orderList;
 
     public ProductEntity(String name, Integer quantity) {
