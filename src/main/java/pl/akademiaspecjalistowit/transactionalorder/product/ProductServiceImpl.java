@@ -36,9 +36,13 @@ public class ProductServiceImpl implements ProductService, ProductReadService, O
         return productRepository.getProductEntityByName(productName);
     }
 
-    private void removeBoughtOutProductsByName(String productName) {
-        productRepository.removeBoughtOutProducts(productName);
+    private void removeBoughtOutProducts(ProductEntity productEntity) {
+        productRepository.removeBoughtOutProducts(productEntity);
     }
+
+//    private void removeBoughtOutProductsByName(String productName) {
+//        productRepository.removeBoughtOutProducts(productName);
+//    }
 
     @Override
     public void notifyOrderPlaced(OrderEntity orderEntityAfterValidations) {
@@ -49,5 +53,12 @@ public class ProductServiceImpl implements ProductService, ProductReadService, O
     public void notifyOrderDeleted(ProductEntity productEntity, OrderEntity orderEntity) {
         productEntity.setQuantity(productEntity.getQuantity() + orderEntity.getQuantity());
         productRepository.save(productEntity);
+    }
+
+    @Override
+    public void notifyOrderCompleted(ProductEntity productEntity) {
+        if (productEntity.getQuantity() == 0){
+            removeBoughtOutProducts(productEntity);
+        }
     }
 }

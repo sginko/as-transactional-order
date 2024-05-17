@@ -41,7 +41,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void completedOrderById(Long id) {
+        findOrderForWarehouseStateUpdate1(id);
         orderRepository.deleteById(id);
+    }
+
+    private void findOrderForWarehouseStateUpdate1(Long id) {
+        OrderEntity orderEntity = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderServiceException("Order not found"));
+        for (ProductEntity productEntity : orderEntity.getProductEntityList()) {
+            if (productEntity.getQuantity() == 0) {
+                orderEventListener.notifyOrderCompleted(productEntity);
+            }
+        }
     }
 
     private void findOrderForWarehouseStateUpdate(Long id) {
