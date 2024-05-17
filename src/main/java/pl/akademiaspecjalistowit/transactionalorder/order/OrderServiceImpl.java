@@ -38,6 +38,12 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    public void completedOrderById(Long id) {
+        orderRepository.deleteById(id);
+    }
+
     private void findOrderForWarehouseStateUpdate(Long id) {
         OrderEntity orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderServiceException("Order not found"));

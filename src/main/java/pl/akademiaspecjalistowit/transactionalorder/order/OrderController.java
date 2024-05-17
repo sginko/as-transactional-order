@@ -21,4 +21,9 @@ public class OrderController {
     public void deleteOrderById(@PathVariable Long id){
         orderService.deleteOrderById(id);
     }
+
+    @PostMapping("/completed/{id}")
+    public void completedOrderById(@PathVariable Long id){
+        orderService.completedOrderById(id);
+    }
 }
