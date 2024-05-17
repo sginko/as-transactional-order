@@ -3,6 +3,7 @@
 //import static org.assertj.core.api.Assertions.assertThat;
 //import static org.junit.jupiter.api.Assertions.assertThrows;
 //
+//import java.util.ArrayList;
 //import java.util.List;
 //
 //import org.junit.jupiter.api.AfterEach;
@@ -11,6 +12,7 @@
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;
 //import pl.akademiaspecjalistowit.transactionalorder.product.ProductDto;
+//import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 //import pl.akademiaspecjalistowit.transactionalorder.product.ProductRepository;
 //import pl.akademiaspecjalistowit.transactionalorder.product.ProductService;
 //
@@ -49,7 +51,7 @@
 //        //then
 //        OrderEntity orderEntity = orderIsSavedInDatabase();
 //        //and
-//        theOrderMatchesInputValues(orderDto, orderEntity);
+////        theOrderMatchesInputValues(orderDto, orderEntity);
 //    }
 //
 //    @Test
@@ -95,17 +97,21 @@
 //    }
 //
 //    private void productForTestOrderIsAvailable(OrderDto orderDto) {
-//        productService.addProduct(new ProductDto(orderDto.getProducts(), orderDto.getQuantity()));
+//        for (String productName : orderDto.getProducts()) {
+//            productService.addProduct(new ProductDto(productName, orderDto.getQuantity()));
+//        }
 //    }
 //
 //    private void productForTestOrderIsAvailableWithQuantity(OrderDto orderDto, int quantity) {
-//        productService.addProduct(new ProductDto(orderDto.getProducts(), quantity));
+//        for (String productName : orderDto.getProducts()) {
+//            productService.addProduct(new ProductDto(productName, quantity));
+//        }
 //    }
 //
-//    private void theOrderMatchesInputValues(OrderDto orderDto, OrderEntity orderEntity) {
-//        assertThat(orderDto.getProducts()).isEqualTo(orderEntity.getProductEntity().getName());
-//        assertThat(orderDto.getQuantity()).isEqualTo(orderEntity.getQuantity());
-//    }
+////    private void theOrderMatchesInputValues(OrderDto orderDto, OrderEntity orderEntity) {
+////        assertThat(orderDto.getProducts()).isEqualTo(orderEntity.getProductEntity().getName());
+////        assertThat(orderDto.getQuantity()).isEqualTo(orderEntity.getQuantity());
+////    }
 //
 //    private OrderEntity orderIsSavedInDatabase() {
 //        List<OrderEntity> all = orderRepository.findAll();
@@ -116,15 +122,23 @@
 //    private void orderIsNotSavedInTheDatabase() {
 //        List<OrderEntity> all = orderRepository.findAll();
 //        assertThat(all).hasSize(0);
+//        assertThat(all).isEmpty();
 //    }
 //
 //    private OrderDto prepareValidOrderDto() {
 //        int validQuantity = 10;
-//        return new OrderDto(List.of("exampleProduct"), validQuantity);
+//        String exampleProduct = "exampleProduct";
+//        List<String> listOfProduct = new ArrayList<>();
+//        listOfProduct.add(exampleProduct);
+//        return new OrderDto(listOfProduct, validQuantity);
+////        return new OrderDto(List.of("exampleProduct"), validQuantity);
 //    }
 //
 //    private OrderDto prepareInvalidOrderDto() {
 //        int validQuantity = -1;
-//        return new OrderDto(List.of("exampleProduct"), validQuantity);
+//        String exampleProduct = "exampleProduct";
+//        List<String> listOfProduct = new ArrayList<>();
+//        listOfProduct.add(exampleProduct);
+//        return new OrderDto(listOfProduct, validQuantity);
 //    }
 //}
