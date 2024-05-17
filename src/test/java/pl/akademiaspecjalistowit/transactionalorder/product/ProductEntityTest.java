@@ -21,10 +21,9 @@ class ProductEntityTest {
         ProductEntity givenPizza = new ProductEntity("pizza", 10);
         List<ProductEntity> listOfProduct = new ArrayList<>();
         listOfProduct.add(givenPizza);
-        OrderEntity pizzaOrder = new OrderEntity(listOfProduct, 11);
 
         //when
-        Executable e = () -> givenPizza.applyOrder(pizzaOrder);
+        Executable e = () -> new OrderEntity(listOfProduct, 11);
 
         //then
         ProductException productException = assertThrows(ProductException.class, e);
