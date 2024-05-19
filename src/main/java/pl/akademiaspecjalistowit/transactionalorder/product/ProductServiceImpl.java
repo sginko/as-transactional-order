@@ -50,15 +50,15 @@ public class ProductServiceImpl implements ProductService, ProductReadService, O
     }
 
     @Override
-    public void notifyOrderDeleted(ProductEntity productEntity, OrderEntity orderEntity) {
+    public void notifyOrderCanceled(ProductEntity productEntity, OrderEntity orderEntity) {
         productEntity.setQuantity(productEntity.getQuantity() + orderEntity.getQuantity());
         productRepository.save(productEntity);
     }
 
     @Override
     public void notifyOrderCompleted(ProductEntity productEntity) {
-        if (productEntity.getQuantity() == 0){
-            removeBoughtOutProducts(productEntity);
-        }
+        removeBoughtOutProducts(productEntity);
+//        if (productEntity.getQuantity() == 0){
+//        }
     }
 }

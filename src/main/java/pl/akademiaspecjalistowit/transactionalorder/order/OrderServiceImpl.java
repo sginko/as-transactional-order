@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void deleteOrderById(Long id) {
+    public void cancelOrderById(Long id) {
         findOrderForWarehouseStateUpdate(id);
         orderRepository.deleteById(id);
     }
@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderServiceException("Order not found"));
         for (ProductEntity productEntity : orderEntity.getProductEntityList()) {
-            orderEventListener.notifyOrderDeleted(productEntity, orderEntity);
+            orderEventListener.notifyOrderCanceled(productEntity, orderEntity);
         }
     }
 

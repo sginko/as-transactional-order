@@ -18,8 +18,8 @@ public class OrderController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteOrderById(@PathVariable Long id){
-        orderService.deleteOrderById(id);
+    public void cancelOrderById(@PathVariable Long id){
+        orderService.cancelOrderById(id);
     }
 
     @PostMapping("/completed/{id}")
