@@ -51,7 +51,7 @@ class OrderServiceImplTest {
         //then
         OrderEntity orderEntity = orderIsSavedInDatabase();
         //and
-//        theOrderMatchesInputValues(orderDto, orderEntity);
+        theOrderMatchesInputValues(orderDto, orderEntity);
     }
 
     @Test
@@ -108,10 +108,10 @@ class OrderServiceImplTest {
         }
     }
 
-//    private void theOrderMatchesInputValues(OrderDto orderDto, OrderEntity orderEntity) {
-//        assertThat(orderDto.getProducts()).isEqualTo(orderEntity.getProductEntity().getName());
-//        assertThat(orderDto.getQuantity()).isEqualTo(orderEntity.getQuantity());
-//    }
+    private void theOrderMatchesInputValues(OrderDto orderDto, OrderEntity orderEntity) {
+        assertThat(orderDto.getProducts()).containsExactlyInAnyOrderElementsOf(orderEntity.getProductEntityList().stream().map(e-> e.getName()).toList());
+        assertThat(orderDto.getQuantity()).isEqualTo(orderEntity.getQuantity());
+    }
 
     private OrderEntity orderIsSavedInDatabase() {
         List<OrderEntity> all = orderRepository.findAll();
