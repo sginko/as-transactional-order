@@ -31,6 +31,9 @@ class OrderServiceImplTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private OrderEventListener orderEventListener;
+
 
     @AfterEach
     void tearDown() {
@@ -94,7 +97,40 @@ class OrderServiceImplTest {
 
         //then
         orderIsNotSavedInTheDatabase();
+        assertThrows(OrderServiceException.class, e);
     }
+
+    @Test
+    public void should_canceled_order_by_id() {
+        //given
+        OrderDto validOrderDto = prepareValidOrderDto();
+        productForTestOrderIsAvailable(validOrderDto);
+        orderService.placeAnOrder(validOrderDto);
+        OrderEntity orderEntity = orderIsSavedInDatabase();
+
+        //when
+        orderService.cancelOrderById(orderEntity.getId());
+
+        //then
+        assertThat(orderRepository.findById(orderEntity.getId())).isEmpty();
+    }
+
+    @Test
+    public void should_complete_order_by_id() {
+        //given
+        OrderDto validOrderDto = prepareValidOrderDto();
+        productForTestOrderIsAvailable(validOrderDto);
+        orderService.placeAnOrder(validOrderDto);
+        OrderEntity orderEntity = orderIsSavedInDatabase();
+
+        //when
+        orderService.completedOrderById(orderEntity.getId());
+
+        //then
+        assertThat(orderRepository.findById(orderEntity.getId())).isEmpty();
+    }
+
+
 
     private void productForTestOrderIsAvailable(OrderDto orderDto) {
         for (String productName : orderDto.getProducts()) {

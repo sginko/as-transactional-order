@@ -34,18 +34,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void cancelOrderById(Long id) {
-        findOrderForWarehouseStateUpdate(id);
+        findOrderForCanceledOrder(id);
         orderRepository.deleteById(id);
     }
 
     @Override
     @Transactional
     public void completedOrderById(Long id) {
-        findOrderForWarehouseStateUpdate1(id);
+        findOrderForCompleteOrder(id);
         orderRepository.deleteById(id);
     }
 
-    private void findOrderForWarehouseStateUpdate1(Long id) {
+    private void findOrderForCompleteOrder(Long id) {
         OrderEntity orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderServiceException("Order not found"));
         for (ProductEntity productEntity : orderEntity.getProductEntityList()) {
@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private void findOrderForWarehouseStateUpdate(Long id) {
+    private void findOrderForCanceledOrder(Long id) {
         OrderEntity orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderServiceException("Order not found"));
         for (ProductEntity productEntity : orderEntity.getProductEntityList()) {
